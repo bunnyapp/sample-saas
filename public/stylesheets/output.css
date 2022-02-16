@@ -468,8 +468,19 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-backdrop-sepia:  ;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .relative {
   position: relative;
+}
+
+.inset-0 {
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
 }
 
 .mx-auto {
@@ -620,6 +631,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-bottom-width: 1px;
 }
 
+.border-t {
+  border-top-width: 1px;
+}
+
 .border-transparent {
   border-color: transparent;
 }
@@ -688,6 +703,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-right: 0.75rem;
 }
 
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
 .text-center {
   text-align: center;
 }
@@ -736,6 +756,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
+}
+
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
 .placeholder-gray-400::-moz-placeholder {
