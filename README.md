@@ -1,6 +1,6 @@
 # Sample-SaaS
 
-A simple multi tenant todo list app for demonstrating integration with Recur.
+A simple multi tenant notes app for demonstrating integration with Recur.
 
 The sample is built using Node + Express + Tailwind CSS.
 
