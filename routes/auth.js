@@ -58,7 +58,7 @@ var router = express.Router();
 
 router.get("/sign-in", function (req, res, next) {
   res.render("sign-in", {
-    layout: "layout",
+    layout: "auth_layout",
   });
 });
 
@@ -78,7 +78,7 @@ router.get("/sign-out", function (req, res, next) {
 
 router.get("/sign-up", function (req, res, next) {
   res.render("sign-up", {
-    layout: "layout",
+    layout: "auth_layout",
   });
 });
 
