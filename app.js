@@ -1,3 +1,4 @@
+require("dotenv").config();
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -11,7 +12,8 @@ var SQLiteStore = require("connect-sqlite3")(session);
 
 var indexRouter = require("./routes/index");
 var authRouter = require("./routes/auth");
-var usersRouter = require("./routes/users");
+var accountsRouter = require("./routes/accounts");
+var apiRouter = require("./routes/api");
 
 var app = express();
 
@@ -32,6 +34,9 @@ app.use(
     store: new SQLiteStore({ db: "sessions.db", dir: "var/db" }),
   })
 );
+
+app.use("/api", apiRouter); // Csurf not required
+
 app.use(csrf());
 app.use(passport.authenticate("session"));
 app.use(function (req, res, next) {
@@ -43,12 +48,14 @@ app.use(function (req, res, next) {
 });
 app.use(function (req, res, next) {
   res.locals.csrfToken = req.csrfToken();
+  res.locals.user = req.user;
   next();
 });
 
+// Protected by csurf
 app.use("/", indexRouter);
-app.use("/", authRouter);
-app.use("/users", usersRouter);
+app.use("/auth", authRouter);
+app.use("/accounts", accountsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

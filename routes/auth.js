@@ -44,7 +44,10 @@ passport.use(
 
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
-    cb(null, { id: user.id, username: user.username });
+    cb(null, {
+      id: user.id,
+      username: user.username,
+    });
   });
 });
 
@@ -66,55 +69,14 @@ router.post(
   "/sign-in",
   passport.authenticate("local", {
     successReturnToOrRedirect: "/",
-    failureRedirect: "/sign-in",
+    failureRedirect: "/auth/sign-in",
     failureMessage: true,
   })
 );
 
 router.get("/sign-out", function (req, res, next) {
   req.logout();
-  res.redirect("/sign-in");
-});
-
-router.get("/sign-up", function (req, res, next) {
-  res.render("sign-up", {
-    layout: "auth_layout",
-  });
-});
-
-router.post("/sign-up", function (req, res, next) {
-  var salt = crypto.randomBytes(16);
-  crypto.pbkdf2(
-    req.body.password,
-    salt,
-    310000,
-    32,
-    "sha256",
-    function (err, hashedPassword) {
-      if (err) {
-        return next(err);
-      }
-      db.run(
-        "INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)",
-        [req.body.username, hashedPassword, salt],
-        function (err) {
-          if (err) {
-            return next(err);
-          }
-          var user = {
-            id: this.lastID,
-            username: req.body.username,
-          };
-          req.login(user, function (err) {
-            if (err) {
-              return next(err);
-            }
-            res.redirect("/");
-          });
-        }
-      );
-    }
-  );
+  res.redirect("/auth/sign-in");
 });
 
 module.exports = router;
