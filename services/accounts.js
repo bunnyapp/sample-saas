@@ -1,37 +1,55 @@
 var crypto = require("crypto");
 var db = require("../db");
 
-const createAccount = function (req, res, next) {
+async function hashPassword(password) {
   var salt = crypto.randomBytes(16);
-  crypto.pbkdf2(
-    req.body.password,
-    salt,
-    310000,
-    32,
-    "sha256",
-    function (err, hashedPassword) {
-      if (err) {
-        return next(err);
-      }
-      db.run(
-        "INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)",
-        [req.body.username, hashedPassword, salt],
-        function (err) {
-          if (err) {
-            console.log(err);
-            return next();
-          }
-          res.locals.user = {
-            id: this.lastID,
-            username: req.body.username,
-          };
-          next();
+
+  return new Promise((res, rej) => {
+    crypto.pbkdf2(password, salt, 310000, 32, "sha256", (err, key) => {
+      err ? rej(err) : res({ salt, key });
+    });
+  });
+}
+
+const createAccount = async function (username, password, max_notes) {
+  var hash = await hashPassword(password);
+
+  return new Promise((res, rej) => {
+    db.run(
+      "INSERT INTO users (username, hashed_password, salt, max_notes) VALUES (?, ?, ?, ?)",
+      [username, hash.key, hash.salt, max_notes],
+      function (err) {
+        if (err) {
+          console.log(err);
+          return res(null);
         }
-      );
-    }
-  );
+
+        return res({
+          id: this.lastID,
+        });
+      }
+    );
+  });
+};
+
+const updateAccount = async function (id, max_notes) {
+  return new Promise((res, rej) => {
+    db.run(
+      "UPDATE users SET max_notes = ? WHERE id = ?",
+      [max_notes, id],
+      function (err) {
+        if (err) {
+          console.log(err);
+          return res(false);
+        }
+
+        return res(true);
+      }
+    );
+  });
 };
 
 module.exports = {
   createAccount,
+  updateAccount,
 };

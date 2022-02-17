@@ -19,19 +19,37 @@ function validateToken(req, res, next) {
   next();
 }
 
-router.post(
-  "/hook",
-  validateToken,
-  accountsService.createAccount,
-  function (req, res, next) {
-    var user = res.locals.user;
+router.post("/hook", validateToken, async function (req, res, next) {
+  switch (req.body.event_type) {
+    case "SUBSCRIPTION_CREATE":
+      var account = await accountsService.createAccount(
+        req.body.account.username,
+        req.body.account.password,
+        req.body.features.max_notes
+      );
+      console.log("account", account);
+      if (!account) {
+        return res.json({ success: false });
+      }
+      return res.json({ success: true, account: { code: account.id } });
 
-    if (!user) {
-      return res.json({ success: false, user: null });
-    }
+    case "SUBSCRIPTION_UPDATE":
+      var success = await accountsService.updateAccount(
+        req.body.account.code,
+        req.body.features.max_notes
+      );
 
-    res.json({ success: true, user: user });
+      if (!success) {
+        return res.json({ success: false });
+      }
+      return res.json({
+        success: true,
+        account: { code: req.body.account.code },
+      });
+
+    default:
+      return res.json({ success: false });
   }
-);
+});
 
 module.exports = router;

@@ -17,6 +17,9 @@ router.get("/", ensureLoggedIn, function (req, res, next) {
 
       res.render("index", {
         notes: rows,
+        total_notes: rows.length,
+        max_notes: req.user.max_notes,
+        can_create_notes: rows.length < req.user.max_notes,
         layout: "layout",
       });
     }

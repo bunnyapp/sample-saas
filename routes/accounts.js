@@ -8,23 +8,31 @@ router.get("/sign-up", function (req, res, next) {
   });
 });
 
-router.post(
-  "/sign-up",
-  accountsService.createAccount,
-  function (req, res, next) {
-    var user = res.locals.user;
+router.post("/sign-up", async function (req, res, next) {
+  var max_notes = 3;
 
-    if (!user) {
-      return res.redirect("/sign-up");
-    }
+  var account = await accountsService.createAccount(
+    req.body.username,
+    req.body.password,
+    max_notes
+  );
 
-    req.login(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      res.redirect("/");
-    });
+  if (!account) {
+    return res.redirect("/sign-up");
   }
-);
+
+  var user = {
+    id: account.id,
+    username: req.body.username,
+    max_notes: max_notes,
+  };
+
+  req.login(user, function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
 
 module.exports = router;

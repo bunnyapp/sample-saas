@@ -47,6 +47,7 @@ passport.serializeUser(function (user, cb) {
     cb(null, {
       id: user.id,
       username: user.username,
+      max_notes: user.max_notes,
     });
   });
 });
