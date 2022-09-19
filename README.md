@@ -1,6 +1,6 @@
 # Sample-SaaS
 
-A simple multi tenant notes app for demonstrating integration with Recur.
+A simple multi tenant notes app for demonstrating integration with Bunny.
 
 The sample is built using Node + Express + Tailwind CSS.
 

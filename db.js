@@ -12,7 +12,8 @@ db.serialize(function () {
     username TEXT UNIQUE, \
     hashed_password BLOB, \
     salt BLOB, \
-    max_notes INTEGER \
+    max_notes INTEGER, \
+    bunny_code TEXT UNIQUE \
   )"
   );
 

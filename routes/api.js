@@ -5,14 +5,14 @@ var crypto = require("crypto");
 var accountsService = require("../services/accounts");
 
 function validateToken(req, res, next) {
-  var recurSignature = req.headers["x-recur-signature"];
+  var bunnySignature = req.headers["x-bunny-signature"];
 
   var signature = crypto
-    .createHmac("sha1", process.env.RECUR_WEBHOOK_SIGNING_TOKEN)
+    .createHmac("sha1", process.env.BUNNY_WEBHOOK_SIGNING_TOKEN)
     .update(JSON.stringify(req.body))
     .digest("hex");
 
-  if (recurSignature != signature) {
+  if (bunnySignature != signature) {
     return res.sendStatus(403);
   }
 
@@ -20,6 +20,10 @@ function validateToken(req, res, next) {
 }
 
 router.post("/hook", validateToken, async function (req, res, next) {
+  console.log("Webhook Received", req.body);
+  console.log(req.body.type);
+  console.log(req.headers);
+
   switch (req.body.event_type) {
     case "SUBSCRIPTION_CREATE":
       var account = await accountsService.createAccount(
