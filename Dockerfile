@@ -4,12 +4,12 @@ FROM node:16.14.0
 WORKDIR /app
 
 # Install app dependencies
-COPY package.json /app
+COPY ./package.json /app
 
 RUN npm install
 
 # Bundle app source
-COPY . .
+COPY ./ /app
 
 EXPOSE 3000
 
