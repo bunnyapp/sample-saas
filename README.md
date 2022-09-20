@@ -35,3 +35,7 @@ If you want to make changes to html templates and css then also run the css rebu
 ```
 
 Then access the sample at http://localhost:3030
+
+## Beware
+
+This is a simple app designed to demonstrate how Bunny can be used with a SaaS application. Feel free to copy how we have used the Bunny SDK but take note that we have made compromises in order to keep this simple so please don't copy the app itself, user management and session security etc.

@@ -4,7 +4,6 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var session = require("express-session");
-var csrf = require("csurf");
 var passport = require("passport");
 var logger = require("morgan");
 
@@ -35,9 +34,6 @@ app.use(
   })
 );
 
-app.use("/api", apiRouter); // Csurf not required
-
-app.use(csrf());
 app.use(passport.authenticate("session"));
 app.use(function (req, res, next) {
   var msgs = req.session.messages || [];
@@ -47,13 +43,12 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(function (req, res, next) {
-  res.locals.csrfToken = req.csrfToken();
   res.locals.user = req.user;
   next();
 });
 
-// Protected by csurf
 app.use("/", indexRouter);
+app.use("/api", apiRouter);
 app.use("/auth", authRouter);
 app.use("/accounts", accountsRouter);
 

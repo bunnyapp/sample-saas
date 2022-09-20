@@ -2,6 +2,12 @@ var express = require("express");
 var router = express.Router();
 var accountsService = require("../services/accounts");
 
+// const Bunny = require("bunny");
+// const bunny = new Bunny({
+//   baseUrl: process.env.BUNNY_BASE_URL,
+//   accessToken: process.env.BUNNY_ACCESS_TOKEN,
+// });
+
 router.get("/sign-up", function (req, res, next) {
   res.render("sign-up", {
     layout: "auth_layout",
@@ -20,6 +26,16 @@ router.post("/sign-up", async function (req, res, next) {
   if (!account) {
     return res.redirect("/sign-up");
   }
+
+  // Track the signup to Bunny
+  bunny.createSubscription(
+    accountName,
+    firstName,
+    lastName,
+    email,
+    "free",
+    options
+  );
 
   var user = {
     id: account.id,

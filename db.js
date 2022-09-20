@@ -9,6 +9,8 @@ db.serialize(function () {
   db.run(
     "CREATE TABLE IF NOT EXISTS users ( \
     id INTEGER PRIMARY KEY AUTOINCREMENT, \
+    first_name TEXT, \
+    last_name TEXT, \
     username TEXT UNIQUE, \
     hashed_password BLOB, \
     salt BLOB, \
