@@ -18,24 +18,28 @@ router.post("/sign-up", async function (req, res, next) {
   var max_notes = 3;
 
   var account = await accountsService.createAccount(
+    req.body.firstName,
+    req.body.lastName,
     req.body.username,
     req.body.password,
     max_notes
   );
 
   if (!account) {
-    return res.redirect("/sign-up");
+    return res.redirect("/accounts/sign-up");
   }
 
   // Track the signup to Bunny
-  bunny.createSubscription(
-    accountName,
-    firstName,
-    lastName,
-    email,
-    "free",
-    options
-  );
+  // bunny.createSubscription(
+  //   `${firstName} ${lastName}`,
+  //   firstName,
+  //   lastName,
+  //   email,
+  //   "free",
+  //   {
+  //     trial: true,
+  //   }
+  // );
 
   var user = {
     id: account.id,

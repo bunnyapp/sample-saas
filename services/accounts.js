@@ -11,13 +11,19 @@ async function hashPassword(password) {
   });
 }
 
-const createAccount = async function (username, password, max_notes) {
+const createAccount = async function (
+  firstName,
+  lastName,
+  username,
+  password,
+  max_notes
+) {
   var hash = await hashPassword(password);
 
   return new Promise((res, rej) => {
     db.run(
-      "INSERT INTO users (username, hashed_password, salt, max_notes) VALUES (?, ?, ?, ?)",
-      [username, hash.key, hash.salt, max_notes],
+      "INSERT INTO users (first_name, last_name, username, hashed_password, salt, max_notes) VALUES (?, ?, ?, ?, ?, ?)",
+      [firstName, lastName, username, hash.key, hash.salt, max_notes],
       function (err) {
         if (err) {
           console.log(err);
