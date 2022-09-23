@@ -11,10 +11,33 @@ async function hashPassword(password) {
   });
 }
 
+const findById = async function (id) {
+  console.log("Find account by id", id);
+
+  return new Promise((res, rej) => {
+    db.get("SELECT * FROM users WHERE id = ?", [id], function (err, row) {
+      if (err) {
+        console.log(err);
+        return rej(err);
+      }
+      console.log("ROW", row);
+      if (!row) return res();
+
+      return res({
+        id: row.id,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        email: row.email,
+        maxNotes: row.max_notes,
+      });
+    });
+  });
+};
+
 const createAccount = async function (
   firstName,
   lastName,
-  username,
+  email,
   password,
   max_notes
 ) {
@@ -22,12 +45,12 @@ const createAccount = async function (
 
   return new Promise((res, rej) => {
     db.run(
-      "INSERT INTO users (first_name, last_name, username, hashed_password, salt, max_notes) VALUES (?, ?, ?, ?, ?, ?)",
-      [firstName, lastName, username, hash.key, hash.salt, max_notes],
+      "INSERT INTO users (first_name, last_name, email, hashed_password, salt, max_notes) VALUES (?, ?, ?, ?, ?, ?)",
+      [firstName, lastName, email, hash.key, hash.salt, max_notes],
       function (err) {
         if (err) {
           console.log(err);
-          return res(null);
+          return rej(err);
         }
 
         return res({
@@ -38,15 +61,15 @@ const createAccount = async function (
   });
 };
 
-const updateAccount = async function (id, max_notes) {
+const updateMaxNotes = async function (id, maxNotes) {
   return new Promise((res, rej) => {
     db.run(
       "UPDATE users SET max_notes = ? WHERE id = ?",
-      [max_notes, id],
+      [maxNotes, id],
       function (err) {
         if (err) {
           console.log(err);
-          return res(false);
+          return rej(err);
         }
 
         return res(true);
@@ -56,6 +79,7 @@ const updateAccount = async function (id, max_notes) {
 };
 
 module.exports = {
+  findById,
   createAccount,
-  updateAccount,
+  updateMaxNotes,
 };

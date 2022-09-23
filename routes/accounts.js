@@ -2,11 +2,13 @@ var express = require("express");
 var router = express.Router();
 var accountsService = require("../services/accounts");
 
-// const Bunny = require("bunny");
-// const bunny = new Bunny({
-//   baseUrl: process.env.BUNNY_BASE_URL,
-//   accessToken: process.env.BUNNY_ACCESS_TOKEN,
-// });
+const Bunny = require("bunny-app");
+const bunny = new Bunny({
+  baseUrl: process.env.BUNNY_BASE_URL,
+  clientId: process.env.BUNNY_CLIENT_ID,
+  clientSecret: process.env.BUNNY_CLIENT_SECRET,
+  scope: process.env.BUNNY_SCOPE,
+});
 
 router.get("/sign-up", function (req, res, next) {
   res.render("sign-up", {
@@ -17,11 +19,13 @@ router.get("/sign-up", function (req, res, next) {
 router.post("/sign-up", async function (req, res, next) {
   var max_notes = 3;
 
+  const { firstName, lastName, email, password } = req.body;
+
   var account = await accountsService.createAccount(
-    req.body.firstName,
-    req.body.lastName,
-    req.body.username,
-    req.body.password,
+    firstName,
+    lastName,
+    email,
+    password,
     max_notes
   );
 
@@ -30,20 +34,26 @@ router.post("/sign-up", async function (req, res, next) {
   }
 
   // Track the signup to Bunny
-  // bunny.createSubscription(
-  //   `${firstName} ${lastName}`,
-  //   firstName,
-  //   lastName,
-  //   email,
-  //   "free",
-  //   {
-  //     trial: true,
-  //   }
-  // );
+  var response = await bunny.createSubscription(
+    `${firstName} ${lastName}`,
+    firstName,
+    lastName,
+    email,
+    "pro",
+    {
+      trial: true,
+      tenantCode: account.id.toString(),
+    }
+  );
+  if (response.errors) {
+    // The subscription was not created in Bunny
+    // so log this and try again...
+    console.log("Error tracking subscription to bunny", response.errors);
+  }
 
   var user = {
     id: account.id,
-    username: req.body.username,
+    email: email,
     max_notes: max_notes,
   };
 

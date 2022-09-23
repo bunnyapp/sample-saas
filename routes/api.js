@@ -4,6 +4,14 @@ var crypto = require("crypto");
 
 var accountsService = require("../services/accounts");
 
+const Bunny = require("bunny-app");
+const bunny = new Bunny({
+  baseUrl: process.env.BUNNY_BASE_URL,
+  clientId: process.env.BUNNY_CLIENT_ID,
+  clientSecret: process.env.BUNNY_CLIENT_SECRET,
+  scope: process.env.BUNNY_SCOPE,
+});
+
 function validateToken(req, res, next) {
   var bunnySignature = req.headers["x-bunny-signature"];
 
@@ -13,10 +21,20 @@ function validateToken(req, res, next) {
     .digest("hex");
 
   if (bunnySignature != signature) {
+    console.log(
+      "Bunny signature validation failed. Check your signing tokens match"
+    );
     return res.sendStatus(403);
   }
 
   next();
+}
+
+function getNotesAllowedFromSubcription(subscription) {
+  const notesAllowed = payload.change.subscriptions[0].features.find(
+    (f) => f.code == "notes"
+  );
+  return notesAllowed?.quantity || 3;
 }
 
 router.post("/hook", validateToken, async function (req, res, next) {
@@ -24,35 +42,53 @@ router.post("/hook", validateToken, async function (req, res, next) {
   console.log(req.body.type);
   console.log(req.headers);
 
-  switch (req.body.event_type) {
-    case "SUBSCRIPTION_CREATE":
-      var account = await accountsService.createAccount(
-        req.body.account.username,
-        req.body.account.password,
-        req.body.features.max_notes
-      );
-      console.log("account", account);
-      if (!account) {
-        return res.json({ success: false });
-      }
-      return res.json({ success: true, account: { code: account.id } });
+  const payload = req.body.payload;
+  console.log(payload);
 
-    case "SUBSCRIPTION_UPDATE":
-      var success = await accountsService.updateAccount(
-        req.body.account.code,
-        req.body.features.max_notes
-      );
+  switch (req.body.type) {
+    case "TenantProvisioningChange":
+      if (payload.tenant.code == "provisioning-test")
+        return res.sendStatus(200);
 
-      if (!success) {
-        return res.json({ success: false });
+      var account = await accountsService.findById(payload.tenant.code);
+      console.log("ACCOUNT", account);
+
+      const contact = payload.tenant.account.contacts[0];
+      const subscription = payload.change.subscriptions[0];
+
+      if (account) {
+        // Update the account
+        const updateResponse = await accountsService.updateMaxNotes(
+          account.id,
+          getNotesAllowedFromSubcription(subscription)
+        );
+
+        return res.json({ success: updateResponse });
+      } else {
+        // Create a new account
+        var account = await accountsService.createAccount(
+          contact.first_name,
+          contact.last_name,
+          contact.email,
+          "testonly",
+          getNotesAllowedFromSubcription(subscription)
+        );
+
+        // Then update the tenantCode on Bunny
+        const bunnyResponse = await bunny.updateTenant(
+          payload.tenant.id,
+          account.id,
+          payload.tenant.name
+        );
+        if (bunnyResponse.errors || !bunnyResponse.tenant) {
+          console.log("Updating Bunny Tenant Failed", bunnyResponse);
+        }
       }
-      return res.json({
-        success: true,
-        account: { code: req.body.account.code },
-      });
+
+      return res.json({ success: true });
 
     default:
-      return res.json({ success: false });
+      return res.sendStatus(400);
   }
 });
 

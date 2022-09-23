@@ -11,7 +11,7 @@ db.serialize(function () {
     id INTEGER PRIMARY KEY AUTOINCREMENT, \
     first_name TEXT, \
     last_name TEXT, \
-    username TEXT UNIQUE, \
+    email TEXT UNIQUE, \
     hashed_password BLOB, \
     salt BLOB, \
     max_notes INTEGER, \
