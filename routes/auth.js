@@ -1,49 +1,28 @@
 var express = require("express");
 var passport = require("passport");
 var LocalStrategy = require("passport-local");
-var crypto = require("crypto");
 var db = require("../db");
 
 passport.use(
   new LocalStrategy(
     {
       usernameField: "email",
-      passwordField: "password",
+      passwordField: "email",
     },
-    function verify(email, password, cb) {
+    function verify(email, password, done) {
       db.get(
         "SELECT * FROM users WHERE email = ?",
         [email],
         function (err, row) {
           if (err) {
-            return cb(err);
+            return done(err);
           }
           if (!row) {
-            return cb(null, false, {
-              message: "Incorrect email or password.",
+            return done(null, false, {
+              message: "Invalid account.",
             });
           }
-          console.log("ROW", row);
-          crypto.pbkdf2(
-            password,
-            row.salt,
-            310000,
-            32,
-            "sha256",
-            function (err, hashedPassword) {
-              if (err) {
-                return cb(err);
-              }
-              if (
-                !crypto.timingSafeEqual(row.hashed_password, hashedPassword)
-              ) {
-                return cb(null, false, {
-                  message: "Incorrect email or password.",
-                });
-              }
-              return cb(null, row);
-            }
-          );
+          return done(null, row);
         }
       );
     }
@@ -77,7 +56,7 @@ router.get("/sign-in", function (req, res, next) {
 router.post(
   "/sign-in",
   passport.authenticate("local", {
-    successReturnToOrRedirect: "/",
+    successRedirect: "/notes",
     failureRedirect: "/auth/sign-in",
     failureMessage: true,
   })

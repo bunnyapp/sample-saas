@@ -2,11 +2,10 @@ var express = require("express");
 var router = express.Router();
 var accountsService = require("../services/accounts");
 
-const Bunny = require("bunny-app");
-const bunny = new Bunny({
+const BunnyClient = require("@bunnyapp/api-client");
+const bunny = new BunnyClient({
   baseUrl: process.env.BUNNY_BASE_URL,
-  clientId: process.env.BUNNY_CLIENT_ID,
-  clientSecret: process.env.BUNNY_CLIENT_SECRET,
+  accessToken: process.env.BUNNY_ACCESS_TOKEN,
   scope: process.env.BUNNY_SCOPE,
 });
 

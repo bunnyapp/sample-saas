@@ -6,7 +6,13 @@ var ensureLoggedIn = ensureLogIn("/auth/sign-in");
 
 var router = express.Router();
 
-router.get("/", ensureLoggedIn, function (req, res, next) {
+router.get("/", function (req, res, next) {
+  res.render("index", {
+    layout: "auth_layout",
+  });
+});
+
+router.get("/notes", ensureLoggedIn, function (req, res, next) {
   db.all(
     "SELECT * FROM notes WHERE user_id = ?",
     [req.user.id],
@@ -15,7 +21,7 @@ router.get("/", ensureLoggedIn, function (req, res, next) {
         return next(err);
       }
 
-      res.render("index", {
+      res.render("notes", {
         notes: rows,
         total_notes: rows.length,
         max_notes: req.user.max_notes,

@@ -8,7 +8,7 @@
     "build-css": "npx tailwindcss -i ./public/stylesheets/source.css -o ./public/stylesheets/output.css --watch"
   },
   "dependencies": {
-    "bunny-app": "git+ssh://git@github.com/bunnyapp/bunny-node.git",
+    "@bunnyapp/api-client": "^1.0.7",
     "connect-ensure-login": "^0.1.1",
     "connect-sqlite3": "^0.9.13",
     "cookie-parser": "~1.4.4",
