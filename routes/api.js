@@ -61,12 +61,12 @@ router.post("/hook", validateToken, async function (req, res, next) {
         "Provisioning request received from Bunny"
       );
 
-      await eventsService.createEvent(
-        account.id,
-        "Subscription state: " + subscription.state
-      );
-
       if (account) {
+        await eventsService.createEvent(
+          account.id,
+          "Subscription state: " + subscription.state
+        );
+
         await eventsService.createEvent(
           account.id,
           "Updating account features"

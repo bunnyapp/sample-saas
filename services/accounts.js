@@ -4,8 +4,13 @@ const eventsService = require("./events");
 const findById = async function (id) {
   console.log("Find account by id", id);
 
+  const account_id = parseInt(id);
+  if (isNaN(account_id)) return;
+
   try {
-    const { rows } = await db.query("SELECT * FROM users WHERE id = $1", [id]);
+    const { rows } = await db.query("SELECT * FROM users WHERE id = $1", [
+      account_id,
+    ]);
 
     console.log("ROWS", rows);
     if (rows.length == 0) return;
