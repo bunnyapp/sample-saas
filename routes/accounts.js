@@ -1,12 +1,12 @@
 var express = require("express");
 var router = express.Router();
 var accountsService = require("../services/accounts");
+var eventsService = require("../services/events");
 
-const Bunny = require("bunny-app");
-const bunny = new Bunny({
+const BunnyClient = require("@bunnyapp/api-client");
+const bunny = new BunnyClient({
   baseUrl: process.env.BUNNY_BASE_URL,
-  clientId: process.env.BUNNY_CLIENT_ID,
-  clientSecret: process.env.BUNNY_CLIENT_SECRET,
+  accessToken: process.env.BUNNY_ACCESS_TOKEN,
   scope: process.env.BUNNY_SCOPE,
 });
 
@@ -19,19 +19,22 @@ router.get("/sign-up", function (req, res, next) {
 router.post("/sign-up", async function (req, res, next) {
   var max_notes = 3;
 
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email } = req.body;
 
   var account = await accountsService.createAccount(
     firstName,
     lastName,
     email,
-    password,
     max_notes
   );
 
   if (!account) {
     return res.redirect("/accounts/sign-up");
   }
+  await eventsService.createEvent(
+    account.id,
+    "Account created via sign up page"
+  );
 
   // Track the signup to Bunny
   var response = await bunny.createSubscription(
@@ -49,6 +52,15 @@ router.post("/sign-up", async function (req, res, next) {
     // The subscription was not created in Bunny
     // so log this and try again...
     console.log("Error tracking subscription to bunny", response.errors);
+    await eventsService.createEvent(
+      account.id,
+      "Error creating subscription in Bunny"
+    );
+  } else {
+    await eventsService.createEvent(
+      account.id,
+      "Subscription created in Bunny"
+    );
   }
 
   var user = {
@@ -61,7 +73,7 @@ router.post("/sign-up", async function (req, res, next) {
     if (err) {
       return next(err);
     }
-    res.redirect("/");
+    res.redirect("/notes");
   });
 });
 

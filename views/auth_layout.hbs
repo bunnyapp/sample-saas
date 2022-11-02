@@ -6,6 +6,24 @@
     <link href="/stylesheets/output.css" rel="stylesheet">
   </head>
   <body class="h-full">
-    {{{body}}}
+    <div class="h-full">
+
+        <div class="flex h-full">
+          <div class="flex-auto h-full">
+              {{{body}}}
+          </div>
+          <div class="w-1/4 bg-red-100 bg-slate-900 font-mono py-5 px-3">
+            <h2 class="font-bold text-white">Provisioning Activity</h2>
+            <ul class="py-2">
+              {{#each events}}
+                <li class="py-2 text-sm">
+                  <div class="text-green-500">[{{this.timestamp}}]</div>
+                  <div class="text-white pl-1">{{this.message}}</div>
+                </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
+    </div>
   </body>
 </html>
