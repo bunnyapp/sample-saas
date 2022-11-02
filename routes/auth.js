@@ -9,22 +9,23 @@ passport.use(
       usernameField: "email",
       passwordField: "email",
     },
-    function verify(email, password, done) {
-      db.get(
-        "SELECT * FROM users WHERE email = ?",
-        [email],
-        function (err, row) {
-          if (err) {
-            return done(err);
-          }
-          if (!row) {
-            return done(null, false, {
-              message: "Invalid account.",
-            });
-          }
-          return done(null, row);
+    async function verify(email, password, next) {
+      try {
+        const { rows } = await db.query(
+          "SELECT * FROM users WHERE email = $1",
+          [email]
+        );
+        console.log("ROWS", rows);
+        if (rows.length == 0) {
+          return next(null, false, {
+            message: "Invalid account.",
+          });
         }
-      );
+        return next(null, rows[0]);
+      } catch (error) {
+        console.log("Error authenticating ", error);
+        next(error);
+      }
     }
   )
 );
@@ -48,9 +49,17 @@ passport.deserializeUser(function (user, cb) {
 var router = express.Router();
 
 router.get("/sign-in", function (req, res, next) {
-  res.render("sign-in", {
+  console.log("Failed messages", req.session.messages);
+
+  let options = {
     layout: "auth_layout",
-  });
+  };
+
+  if (req.session.messages) {
+    options.failureMessage = req.session.messages[0];
+  }
+
+  res.render("sign-in", options);
 });
 
 router.post(

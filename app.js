@@ -1,20 +1,22 @@
 require("dotenv").config();
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var session = require("express-session");
-var passport = require("passport");
-var logger = require("morgan");
+const createError = require("http-errors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const passport = require("passport");
+const logger = require("morgan");
 
-var SQLiteStore = require("connect-sqlite3")(session);
+const db = require("./db");
 
-var indexRouter = require("./routes/index");
-var authRouter = require("./routes/auth");
-var accountsRouter = require("./routes/accounts");
-var apiRouter = require("./routes/api");
+const indexRouter = require("./routes/index");
+const authRouter = require("./routes/auth");
+const accountsRouter = require("./routes/accounts");
+const apiRouter = require("./routes/api");
 
-var app = express();
+const eventsService = require("./services/events");
+
+const app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -30,13 +32,23 @@ app.use(
     secret: "land and expand",
     resave: false,
     saveUninitialized: false,
-    store: new SQLiteStore({ db: "sessions.db", dir: "var/db" }),
+    store: new (require("connect-pg-simple")(session))({
+      pool: db.pool,
+      createTableIfMissing: true,
+    }),
   })
 );
 
 app.use(passport.authenticate("session"));
-app.use(function (req, res, next) {
+app.use(async (req, res, next) => {
   res.locals.user = req.user;
+
+  if (req.user) {
+    res.locals.events = await eventsService.findEvents(req.user.id);
+  } else {
+    res.locals.events = await eventsService.allEvents();
+  }
+
   next();
 });
 
