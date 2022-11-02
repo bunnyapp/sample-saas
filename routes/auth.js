@@ -1,51 +1,31 @@
 var express = require("express");
 var passport = require("passport");
 var LocalStrategy = require("passport-local");
-var crypto = require("crypto");
 var db = require("../db");
 
 passport.use(
   new LocalStrategy(
     {
       usernameField: "email",
-      passwordField: "password",
+      passwordField: "email",
     },
-    function verify(email, password, cb) {
-      db.get(
-        "SELECT * FROM users WHERE email = ?",
-        [email],
-        function (err, row) {
-          if (err) {
-            return cb(err);
-          }
-          if (!row) {
-            return cb(null, false, {
-              message: "Incorrect email or password.",
-            });
-          }
-          console.log("ROW", row);
-          crypto.pbkdf2(
-            password,
-            row.salt,
-            310000,
-            32,
-            "sha256",
-            function (err, hashedPassword) {
-              if (err) {
-                return cb(err);
-              }
-              if (
-                !crypto.timingSafeEqual(row.hashed_password, hashedPassword)
-              ) {
-                return cb(null, false, {
-                  message: "Incorrect email or password.",
-                });
-              }
-              return cb(null, row);
-            }
-          );
+    async function verify(email, password, next) {
+      try {
+        const { rows } = await db.query(
+          "SELECT * FROM users WHERE email = $1",
+          [email]
+        );
+        console.log("ROWS", rows);
+        if (rows.length == 0) {
+          return next(null, false, {
+            message: "Invalid account.",
+          });
         }
-      );
+        return next(null, rows[0]);
+      } catch (error) {
+        console.log("Error authenticating ", error);
+        next(error);
+      }
     }
   )
 );
@@ -69,15 +49,23 @@ passport.deserializeUser(function (user, cb) {
 var router = express.Router();
 
 router.get("/sign-in", function (req, res, next) {
-  res.render("sign-in", {
+  console.log("Failed messages", req.session.messages);
+
+  let options = {
     layout: "auth_layout",
-  });
+  };
+
+  if (req.session.messages) {
+    options.failureMessage = req.session.messages[0];
+  }
+
+  res.render("sign-in", options);
 });
 
 router.post(
   "/sign-in",
   passport.authenticate("local", {
-    successReturnToOrRedirect: "/",
+    successRedirect: "/notes",
     failureRedirect: "/auth/sign-in",
     failureMessage: true,
   })

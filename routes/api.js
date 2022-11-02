@@ -3,12 +3,12 @@ var router = express.Router();
 var crypto = require("crypto");
 
 var accountsService = require("../services/accounts");
+var eventsService = require("../services/events");
 
-const Bunny = require("bunny-app");
-const bunny = new Bunny({
+const BunnyClient = require("@bunnyapp/api-client");
+const bunny = new BunnyClient({
   baseUrl: process.env.BUNNY_BASE_URL,
-  clientId: process.env.BUNNY_CLIENT_ID,
-  clientSecret: process.env.BUNNY_CLIENT_SECRET,
+  accessToken: process.env.BUNNY_ACCESS_TOKEN,
   scope: process.env.BUNNY_SCOPE,
 });
 
@@ -56,7 +56,17 @@ router.post("/hook", validateToken, async function (req, res, next) {
       const contact = payload.tenant.account.contacts[0];
       const subscription = payload.change.subscriptions[0];
 
+      await eventsService.createEvent(
+        account.id,
+        "Provisioning request received from Bunny"
+      );
+
       if (account) {
+        await eventsService.createEvent(
+          account.id,
+          "Updating account features"
+        );
+
         // Update the account
         const updateResponse = await accountsService.updateMaxNotes(
           account.id,
@@ -65,6 +75,11 @@ router.post("/hook", validateToken, async function (req, res, next) {
 
         return res.json({ success: updateResponse });
       } else {
+        await eventsService.createEvent(
+          account.id,
+          "Provisioning new account for " + contact.email
+        );
+
         // Create a new account
         var account = await accountsService.createAccount(
           contact.first_name,
@@ -82,6 +97,11 @@ router.post("/hook", validateToken, async function (req, res, next) {
         );
         if (bunnyResponse.errors || !bunnyResponse.tenant) {
           console.log("Updating Bunny Tenant Failed", bunnyResponse);
+        } else {
+          await eventsService.createEvent(
+            account.id,
+            "Updated tenant code in Bunny to " + account.id.toString()
+          );
         }
       }
 
