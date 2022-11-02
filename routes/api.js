@@ -61,6 +61,11 @@ router.post("/hook", validateToken, async function (req, res, next) {
         "Provisioning request received from Bunny"
       );
 
+      await eventsService.createEvent(
+        account.id,
+        "Subscription state: " + subscription.state
+      );
+
       if (account) {
         await eventsService.createEvent(
           account.id,
@@ -85,7 +90,6 @@ router.post("/hook", validateToken, async function (req, res, next) {
           contact.first_name,
           contact.last_name,
           contact.email,
-          "testonly",
           getNotesAllowedFromSubcription(subscription)
         );
 
