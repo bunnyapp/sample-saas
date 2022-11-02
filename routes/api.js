@@ -30,10 +30,8 @@ function validateToken(req, res, next) {
   next();
 }
 
-function getNotesAllowedFromSubcription(subscription) {
-  const notesAllowed = payload.change.subscriptions[0].features.find(
-    (f) => f.code == "notes"
-  );
+function getNotesAllowedFromSubcriptions(subscriptions) {
+  const notesAllowed = subscriptions[0].features.find((f) => f.code == "notes");
   return notesAllowed?.quantity || 3;
 }
 
@@ -76,7 +74,7 @@ router.post("/hook", validateToken, async function (req, res, next) {
         // Update the account
         const updateResponse = await accountsService.updateMaxNotes(
           account.id,
-          getNotesAllowedFromSubcription(subscription)
+          getNotesAllowedFromSubcriptions(payload.change.subscriptions)
         );
 
         return res.json({ success: updateResponse });
@@ -86,7 +84,7 @@ router.post("/hook", validateToken, async function (req, res, next) {
           contact.first_name,
           contact.last_name,
           contact.email,
-          getNotesAllowedFromSubcription(subscription)
+          getNotesAllowedFromSubcriptions(payload.change.subscriptions)
         );
 
         await eventsService.createEvent(
