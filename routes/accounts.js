@@ -42,7 +42,7 @@ router.post("/sign-up", async function (req, res, next) {
     firstName,
     lastName,
     email,
-    "pro",
+    "starter_monthly",
     {
       trial: true,
       tenantCode: account.id.toString(),
