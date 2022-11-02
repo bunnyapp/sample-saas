@@ -57,8 +57,9 @@ router.post("/hook", validateToken, async function (req, res, next) {
       const subscription = payload.change.subscriptions[0];
 
       await eventsService.createEvent(
-        account.id,
-        "Provisioning request received from Bunny"
+        0,
+        "Provisioning request received from Bunny for tenant " +
+          payload.tenant.code
       );
 
       if (account) {
@@ -80,17 +81,17 @@ router.post("/hook", validateToken, async function (req, res, next) {
 
         return res.json({ success: updateResponse });
       } else {
-        await eventsService.createEvent(
-          account.id,
-          "Provisioning new account for " + contact.email
-        );
-
         // Create a new account
         var account = await accountsService.createAccount(
           contact.first_name,
           contact.last_name,
           contact.email,
           getNotesAllowedFromSubcription(subscription)
+        );
+
+        await eventsService.createEvent(
+          account.id,
+          "Account created via Bunny provisioning"
         );
 
         // Then update the tenantCode on Bunny
