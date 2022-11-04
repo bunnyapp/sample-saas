@@ -60,6 +60,10 @@ router.post("/hook", validateToken, async function (req, res, next) {
           payload.tenant.code
       );
 
+      const maxNotes = getNotesAllowedFromSubcriptions(
+        payload.change.subscriptions
+      );
+
       if (account) {
         await eventsService.createEvent(
           account.id,
@@ -71,10 +75,15 @@ router.post("/hook", validateToken, async function (req, res, next) {
           "Updating account features"
         );
 
+        await eventsService.createEvent(
+          account.id,
+          "Maximum notes set to " + maxNotes.toString()
+        );
+
         // Update the account
         const updateResponse = await accountsService.updateMaxNotes(
           account.id,
-          getNotesAllowedFromSubcriptions(payload.change.subscriptions)
+          maxNotes
         );
 
         return res.json({ success: updateResponse });
@@ -84,12 +93,17 @@ router.post("/hook", validateToken, async function (req, res, next) {
           contact.first_name,
           contact.last_name,
           contact.email,
-          getNotesAllowedFromSubcriptions(payload.change.subscriptions)
+          maxNotes
         );
 
         await eventsService.createEvent(
           account.id,
           "Account created via Bunny provisioning"
+        );
+
+        await eventsService.createEvent(
+          account.id,
+          "Maximum notes set to " + maxNotes.toString()
         );
 
         // Then update the tenantCode on Bunny
