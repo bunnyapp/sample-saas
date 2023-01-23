@@ -6,9 +6,19 @@ The sample is built using Node + Express + Tailwind CSS.
 
 ## What does it do?
 
+Sign in/sign up is email address. There are no passwords or magic links. This is just a demo app so we're not focussed on account security in this case.
+
 - If you sign up for a new account at `/accounts/sign-up` it will
+
   - create a new tenant/account in sample-saas
   - create a new account & subscription in Bunny
+  - set the local `account.id` as the `tenantCode` for this account in Bunny
+
+- When a webhook is recieved from Bunny at `/api/hook` it will
+  - validate the incoming webhook signature from the request header using a shared signing token
+  - check if the tenant in the webhook payload matches with any accounts store locally.
+    - if _no_ account is found it will create one and set the max notes allowance
+    - if an account is found it will update the max notes allowance for that account
 
 ## Install
 

@@ -12,7 +12,7 @@ const bunny = new BunnyClient({
   scope: process.env.BUNNY_SCOPE,
 });
 
-function validateToken(req, res, next) {
+function validateWebhookSignature(req, res, next) {
   var bunnySignature = req.headers["x-bunny-signature"];
 
   var signature = crypto
@@ -35,7 +35,7 @@ function getNotesAllowedFromSubcriptions(subscriptions) {
   return notesAllowed?.quantity || 3;
 }
 
-router.post("/hook", validateToken, async function (req, res, next) {
+router.post("/hook", validateWebhookSignature, async function (req, res, next) {
   console.log("Webhook Received", req.body);
   console.log(req.body.type);
   console.log(req.headers);
