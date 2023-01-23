@@ -7,7 +7,6 @@ const BunnyClient = require("@bunnyapp/api-client");
 const bunny = new BunnyClient({
   baseUrl: process.env.BUNNY_BASE_URL,
   accessToken: process.env.BUNNY_ACCESS_TOKEN,
-  scope: process.env.BUNNY_SCOPE,
 });
 
 router.get("/sign-up", function (req, res, next) {
@@ -36,27 +35,36 @@ router.post("/sign-up", async function (req, res, next) {
     "Account created via sign up page"
   );
 
-  // Track the signup to Bunny
-  var response = await bunny.createSubscription("starter_monthly", {
-    accountName: `${firstName} ${lastName}`,
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    trial: true,
-    tenantCode: account.id.toString(),
-  });
-  if (response.errors) {
-    // The subscription was not created in Bunny
-    // so log this and try again...
-    console.log("Error tracking subscription to bunny", response.errors);
+  try {
+    // Create a trial subscription in Bunny
+    var response = await bunny.createSubscription("starter_monthly", {
+      accountName: `${firstName} ${lastName}`,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      trial: true,
+      tenantCode: account.id.toString(),
+    });
+
+    if (response.errors) {
+      // The subscription was not created in Bunny
+      // so log this and try again...
+      console.log("Error creating subscription in bunny", response.errors);
+      await eventsService.createEvent(
+        account.id,
+        "Failed to create subscription in Bunny"
+      );
+    } else {
+      await eventsService.createEvent(
+        account.id,
+        "Subscription created in Bunny"
+      );
+    }
+  } catch (error) {
+    console.log("Error creating subscription in Bunny", error);
     await eventsService.createEvent(
       account.id,
       "Error creating subscription in Bunny"
-    );
-  } else {
-    await eventsService.createEvent(
-      account.id,
-      "Subscription created in Bunny"
     );
   }
 
