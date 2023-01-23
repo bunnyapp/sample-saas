@@ -4,6 +4,12 @@ A simple multi tenant notes app for demonstrating integration with Bunny.
 
 The sample is built using Node + Express + Tailwind CSS.
 
+## What does it do?
+
+- If you sign up for a new account at `/accounts/sign-up` it will
+  - create a new tenant/account in sample-saas
+  - create a new account & subscription in Bunny
+
 ## Install
 
 Get this sample up and running quickly with Docker.
@@ -24,14 +30,13 @@ Run this sample in development mode which will auto rebuild on changes.
 Start the main express app.
 
 ```
-> make build
-> make dev
+> npm run dev
 ```
 
 If you want to make changes to html templates and css then also run the css rebuild using
 
 ```sh
-> make build-css
+> npm run build-css
 ```
 
 Then access the sample at http://localhost:3030
