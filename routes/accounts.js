@@ -37,17 +37,14 @@ router.post("/sign-up", async function (req, res, next) {
   );
 
   // Track the signup to Bunny
-  var response = await bunny.createSubscription(
-    `${firstName} ${lastName}`,
-    firstName,
-    lastName,
-    email,
-    "starter_monthly",
-    {
-      trial: true,
-      tenantCode: account.id.toString(),
-    }
-  );
+  var response = await bunny.createSubscription("starter_monthly", {
+    accountName: `${firstName} ${lastName}`,
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    trial: true,
+    tenantCode: account.id.toString(),
+  });
   if (response.errors) {
     // The subscription was not created in Bunny
     // so log this and try again...
