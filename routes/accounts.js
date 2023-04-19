@@ -15,6 +15,27 @@ router.get("/sign-up", function (req, res, next) {
   });
 });
 
+router.get("/manage", async function (req, res, next) {
+  try {
+    console.log("Creating portal session for user", req.user.id);
+    result = await bunny.createPortalSession(req.user.id.toString());
+
+    if (result.errors) {
+      console.log("Error creating portal session", result.errors);
+      return res.sendStatus(400);
+    }
+
+    const portalSessionToken = result.data.portalSessionCreate.token;
+
+    res.redirect(
+      `${process.env.BUNNY_BASE_URL}/portal/subscriptions?token=${portalSessionToken}`
+    );
+  } catch (error) {
+    console.log("Error sending portal session request", error);
+    return res.sendStatus(400);
+  }
+});
+
 router.post("/sign-up", async function (req, res, next) {
   var max_notes = 3;
 
