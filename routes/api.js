@@ -48,7 +48,8 @@ router.post("/hook", validateWebhookSignature, async function (req, res, next) {
       if (payload.tenant.code == "provisioning-test")
         return res.sendStatus(200);
 
-      var account = await accountsService.findById(payload.tenant.code);
+      var accountId = payload.tenant.code.replace("sample-saas-account-", "");
+      var account = await accountsService.findById(accountId);
       console.log("ACCOUNT", account);
 
       const contact = payload.tenant.account.contacts[0];

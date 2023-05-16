@@ -64,7 +64,7 @@ router.post("/sign-up", async function (req, res, next) {
       lastName: lastName,
       email: email,
       trial: true,
-      tenantCode: account.id.toString(),
+      tenantCode: `sample-saas-account-${account.id}`,
     });
 
     if (response.errors) {
