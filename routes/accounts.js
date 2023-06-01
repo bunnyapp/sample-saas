@@ -18,7 +18,7 @@ router.get("/sign-up", function (req, res, next) {
 router.get("/manage", async function (req, res, next) {
   try {
     var tenantCode = `sample-saas-account-${req.user.id}`;
-    var returnUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
+    var returnUrl = `${req.protocol}://${req.get("host")}/notes`;
 
     console.log("Creating portal session for user", tenantCode);
     result = await bunny.createPortalSession(tenantCode, returnUrl);
