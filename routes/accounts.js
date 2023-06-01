@@ -18,9 +18,10 @@ router.get("/sign-up", function (req, res, next) {
 router.get("/manage", async function (req, res, next) {
   try {
     var tenantCode = `sample-saas-account-${req.user.id}`;
+    var returnUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
 
     console.log("Creating portal session for user", tenantCode);
-    result = await bunny.createPortalSession(tenantCode);
+    result = await bunny.createPortalSession(tenantCode, returnUrl);
 
     if (result.errors) {
       console.log("Error creating portal session", result.errors);
@@ -59,8 +60,10 @@ router.post("/sign-up", async function (req, res, next) {
   );
 
   try {
+    var priceListCode = process.env.SUBSCRIPTION_PRICE_LIST_CODE;
+
     // Create a trial subscription in Bunny
-    var response = await bunny.createSubscription("starter_monthly", {
+    var response = await bunny.createSubscription(priceListCode, {
       accountName: `${firstName} ${lastName}`,
       firstName: firstName,
       lastName: lastName,
