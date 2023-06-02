@@ -72,7 +72,7 @@ This is a simple app designed to demonstrate how Bunny can be used with a SaaS a
 - Add NODE_TLS_REJECT_UNAUTHORIZED=0 to .env
 - Add samplesaas.bunny.internal to /etc/hosts
 - Create a local postgres database called samplesaas
-- Create an API client
+- Create an API client callled SampleSaaS
   Enable scopes: security:read/write, standard:read/write, product:read/write
   Enable Client Credentials Grant
   Generate access token and copy to the .env file
