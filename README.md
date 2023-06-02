@@ -40,6 +40,7 @@ Run this sample in development mode which will auto rebuild on changes.
 Start the main express app.
 
 ```
+> npm install
 > npm run dev
 ```
 
