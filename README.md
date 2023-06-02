@@ -14,17 +14,27 @@ Sign in/sign up is email address. There are no passwords or magic links. This is
   - create a new account & subscription in Bunny
   - set the local `account.id` as the `tenantCode` for this account in Bunny
 
+- If you select "Manage Subscription" in the top menu it will redirect you to Bunny's subscription management portal where you can upgrade or modify subscriptions, and make payments etc.
+
 - When a webhook is recieved from Bunny at `/api/hook` it will
   - validate the incoming webhook signature from the request header using a shared signing token
   - check if the tenant in the webhook payload matches with any accounts store locally.
     - if _no_ account is found it will create one and set the max notes allowance
     - if an account is found it will update the max notes allowance for that account
 
-## Install
+## Setup
 
 Get this sample up and running quickly with Docker.
 
-Pull this repo then.
+Pull this repo.
+
+Then rename `.env.sample` to `.env` and set the required ENV vars.
+
+You will need to create an API Client in Bunny and assign the following scopes.
+
+```
+standard:read standard:write product:read product:write security:read security:write
+```
 
 ```sh
 > make build
