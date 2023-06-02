@@ -55,3 +55,21 @@ Then access the sample at http://localhost:3030
 ## Beware
 
 This is a simple app designed to demonstrate how Bunny can be used with a SaaS application. Feel free to copy how we have used the Bunny SDK but take note that we have made compromises in order to keep this simple so please don't copy the app itself, user management and session security etc.
+
+## Running samplesaas locally
+
+- Copy .env.sample to .env
+- Add NODE_TLS_REJECT_UNAUTHORIZED=0 to .env
+- Add samplesaas.bunny.internal to /etc/hosts
+- Create a local postgres database called samplesaas
+- Create an API client
+  Enable scopes: security:read/write, standard:read/write, product:read/write
+  Enable Client Credentials Grant
+  Generate access token and copy to the .env file
+- Create a product that has a price list that matches SUBSCRIPTION_PRICE_LIST_CODE in .env
+  Make sure the product has platform Main
+- Enable provisioning on platform Main
+- Run npm install
+- Run PORT=3005 npm start
+
+Now you should be able to access samplesaas at localhost:3005
