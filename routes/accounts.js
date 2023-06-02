@@ -22,6 +22,7 @@ router.get("/manage", async function (req, res, next) {
 
     console.log("Creating portal session for user", tenantCode);
     result = await bunny.createPortalSession(tenantCode, returnUrl);
+    console.log("Portal session create response", result);
 
     if (result.errors) {
       console.log("Error creating portal session", result.errors);
@@ -29,6 +30,7 @@ router.get("/manage", async function (req, res, next) {
     }
 
     const portalSessionToken = result.data.portalSessionCreate.token;
+    console.log("Portal session token", portalSessionToken);
 
     res.redirect(
       `${process.env.BUNNY_BASE_URL}/portal/subscriptions?token=${portalSessionToken}`
