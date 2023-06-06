@@ -71,6 +71,7 @@ router.post("/sign-up", async function (req, res, next) {
       lastName: lastName,
       email: email,
       trial: true,
+      evergreen: true,
       tenantCode: `sample-saas-account-${account.id}`,
     });
 
