@@ -107,19 +107,20 @@ router.post("/hook", validateWebhookSignature, async function (req, res, next) {
           "Maximum notes set to " + maxNotes.toString()
         );
 
-        // Then update the tenantCode on Bunny
-        const bunnyResponse = await bunny.updateTenant(
-          payload.tenant.id,
-          account.id,
-          payload.tenant.name
-        );
-        if (bunnyResponse.errors || !bunnyResponse.tenant) {
-          console.log("Updating Bunny Tenant Failed", bunnyResponse);
-        } else {
+        try {
+          // Then update the tenantCode on Bunny
+          const tenant = await bunny.tenantUpdate(
+            payload.tenant.id,
+            account.id,
+            payload.tenant.name
+          );
+
           await eventsService.createEvent(
             account.id,
             "Updated tenant code in Bunny to " + account.id.toString()
           );
+        } catch (error) {
+          console.log("Updating Bunny Tenant Failed", error);
         }
       }
 

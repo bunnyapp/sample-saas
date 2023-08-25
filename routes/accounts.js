@@ -21,15 +21,10 @@ router.get("/manage", async function (req, res, next) {
     var returnUrl = `${req.protocol}://${req.get("host")}/notes`;
 
     console.log("Creating portal session for user", tenantCode);
-    result = await bunny.createPortalSession(tenantCode, returnUrl);
-    console.log("Portal session create response", result);
-
-    if (result.errors) {
-      console.log("Error creating portal session", result.errors);
-      return res.sendStatus(400);
-    }
-
-    const portalSessionToken = result.data.portalSessionCreate.token;
+    var portalSessionToken = await bunny.portalSessionCreate(
+      tenantCode,
+      returnUrl
+    );
     console.log("Portal session token", portalSessionToken);
 
     res.redirect(
@@ -65,7 +60,7 @@ router.post("/sign-up", async function (req, res, next) {
     var priceListCode = process.env.SUBSCRIPTION_PRICE_LIST_CODE;
 
     // Create a trial subscription in Bunny
-    var response = await bunny.createSubscription(priceListCode, {
+    await bunny.subscriptionCreate(priceListCode, {
       accountName: `${firstName} ${lastName}`,
       firstName: firstName,
       lastName: lastName,
@@ -75,20 +70,10 @@ router.post("/sign-up", async function (req, res, next) {
       tenantCode: `sample-saas-account-${account.id}`,
     });
 
-    if (response.errors) {
-      // The subscription was not created in Bunny
-      // so log this and try again...
-      console.log("Error creating subscription in bunny", response.errors);
-      await eventsService.createEvent(
-        account.id,
-        "Failed to create subscription in Bunny"
-      );
-    } else {
-      await eventsService.createEvent(
-        account.id,
-        "Subscription created in Bunny"
-      );
-    }
+    await eventsService.createEvent(
+      account.id,
+      "Subscription created in Bunny"
+    );
   } catch (error) {
     console.log("Error creating subscription in Bunny", error);
     await eventsService.createEvent(
