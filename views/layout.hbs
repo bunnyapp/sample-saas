@@ -22,9 +22,14 @@
                   </div>
                   <div class="ml-6 flex items-center">
                     <div class="ml-3 relative">
-                      <a href="/accounts/manage" alt="Sign Out" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="sign-out-button" aria-expanded="false" aria-haspopup="true">
+                      <button onclick="onManageSubscriptionClick()" alt="Sign Out" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="sign-out-button" aria-expanded="false" aria-haspopup="true">
                         Manage subscription
-                      </a>
+                      </button>
+                    </div>
+                    <div class="ml-3 relative">
+                      <button onclick="onUpdatePaymentMethodClick()" alt="Sign Out" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="sign-out-button" aria-expanded="false" aria-haspopup="true">
+                        Update payment method
+                      </button>
                     </div>
                     <div class="ml-3 relative">
                       <a href="/auth/sign-out" alt="Sign Out" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="sign-out-button" aria-expanded="false" aria-haspopup="true">
@@ -52,5 +57,22 @@
           </div>
         </div>
     </div>
+    <script type="text/javascript" src="https://portal.production.shard-01.bunny.com/v1/bunny.js"></script>
+    <script type="text/javascript">
+      const token = "{{ bunnyPortalToken }}";
+      const bunny = new Bunny("bunny", token);
+
+      function onManageSubscriptionClick (e) {
+        bunny.popup('subscriptions',(data) => {
+          console.log('manage subscription callback', data)
+        });
+      }
+
+      function onUpdatePaymentMethodClick (e) {
+        bunny.popup('payment-method',(data) => {
+          console.log('update payment method callback', data)
+        });
+      }
+    </script>
   </body>
 </html>
