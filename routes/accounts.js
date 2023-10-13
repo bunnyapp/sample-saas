@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var accountsService = require("../services/accounts");
 var eventsService = require("../services/events");
+var bunnyService = require("../services/bunny");
 
 const BunnyClient = require("@bunnyapp/api-client");
 const bunny = new BunnyClient({
@@ -17,15 +18,12 @@ router.get("/sign-up", function (req, res, next) {
 
 router.get("/manage", async function (req, res, next) {
   try {
-    var tenantCode = `sample-saas-account-${req.user.id}`;
     var returnUrl = `${req.protocol}://${req.get("host")}/notes`;
 
-    console.log("Creating portal session for user", tenantCode);
-    var portalSessionToken = await bunny.portalSessionCreate(
-      tenantCode,
+    const portalSessionToken = bunnyService.getPortalToken(
+      req.user.id,
       returnUrl
     );
-    console.log("Portal session token", portalSessionToken);
 
     res.redirect(
       `${process.env.BUNNY_BASE_URL}/portal/subscriptions?token=${portalSessionToken}`

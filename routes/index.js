@@ -3,6 +3,7 @@ var ensureLogIn = require("connect-ensure-login").ensureLoggedIn;
 var db = require("../db");
 
 var ensureLoggedIn = ensureLogIn("/auth/sign-in");
+var bunnyService = require("../services/bunny");
 
 var router = express.Router();
 
@@ -16,7 +17,10 @@ router.get("/notes", ensureLoggedIn, async (req, res, next) => {
       req.user.id,
     ]);
 
+    const bunnyPortalToken = await bunnyService.getPortalToken(req.user.id);
+
     res.render("notes", {
+      bunnyPortalToken: bunnyPortalToken,
       notes: rows,
       total_notes: rows.length,
       max_notes: req.user.max_notes,
