@@ -19,6 +19,13 @@ services:
       - ./root:/root
     env_file:
       - .env
+    environment:
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      # - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - BUNNY_SCOPE="standard:read standard:write product:read product:write security:read security:write"
     command: bash -c "cd /app && npm install && npm start"
 volumes:
   samplesaas-postgres:

@@ -24,24 +24,7 @@ Sign in/sign up is email address. There are no passwords or magic links. This is
 
 ## Setup
 
-Get this sample up and running quickly with Docker.
-
-Pull this repo.
-
-Then rename `.env.sample` to `.env` and set the required ENV vars.
-
-You will need to create an API Client in Bunny and assign the following scopes.
-
-```
-standard:read standard:write product:read product:write security:read security:write
-```
-
-```sh
-> make build
-> make start
-```
-
-Then access the sample at http://localhost:3030
+Refer to https://docs.bunny.com/developer/integrate/the-sample-saas-app for instructions
 
 ## Develop
 
@@ -66,20 +49,3 @@ Then access the sample at http://localhost:3030
 
 This is a simple app designed to demonstrate how Bunny can be used with a SaaS application. Feel free to copy how we have used the Bunny SDK but take note that we have made compromises in order to keep this simple so please don't copy the app itself, user management and session security etc.
 
-## Running samplesaas locally
-
-- Copy .env.sample to .env
-- Add NODE_TLS_REJECT_UNAUTHORIZED=0 to .env
-- Add samplesaas.bunny.internal to /etc/hosts
-- Create a local postgres database called samplesaas
-- Create an API client callled SampleSaaS
-  Enable scopes: security:read/write, standard:read/write, product:read/write
-  Enable Client Credentials Grant
-  Generate access token and copy to the .env file
-- Create a product that has a price list that matches SUBSCRIPTION_PRICE_LIST_CODE in .env
-  Make sure the product has platform Main
-- Enable provisioning on platform Main
-- Run npm install
-- Run PORT=3005 npm start
-
-Now you should be able to access samplesaas at localhost:3005
