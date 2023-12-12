@@ -1,5 +1,5 @@
 services:
-  postgres:
+  sample-saas-db:
     image: postgres:12.4
     ports:
       - 5432
@@ -20,7 +20,7 @@ services:
     env_file:
       - .env
     environment:
-      - PGHOST=postgres
+      - PGHOST=sample-saas-db
       - PGDATABASE=postgres
       - PGUSER=postgres
       - PGPASSWORD=postgres
