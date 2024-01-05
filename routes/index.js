@@ -13,6 +13,11 @@ router.get("/", function (req, res, next) {
 
 router.get("/notes", ensureLoggedIn, async (req, res, next) => {
   try {
+    const users = await db.query("SELECT * FROM users WHERE id = $1", [
+      req.user.id,
+    ]);
+    const user = users.rows[0];
+
     const { rows } = await db.query("SELECT * FROM notes WHERE user_id = $1", [
       req.user.id,
     ]);
@@ -23,8 +28,8 @@ router.get("/notes", ensureLoggedIn, async (req, res, next) => {
       bunnyPortalToken: bunnyPortalToken,
       notes: rows,
       total_notes: rows.length,
-      max_notes: req.user.max_notes,
-      can_create_notes: rows.length < req.user.max_notes,
+      max_notes: user.max_notes,
+      can_create_notes: rows.length < user.max_notes,
       layout: "layout",
     });
   } catch (error) {

@@ -35,7 +35,7 @@ router.get("/manage", async function (req, res, next) {
 });
 
 router.post("/sign-up", async function (req, res, next) {
-  var max_notes = 3;
+  var max_notes = 1;
 
   const { firstName, lastName, email } = req.body;
 
@@ -58,7 +58,7 @@ router.post("/sign-up", async function (req, res, next) {
     var priceListCode = process.env.SUBSCRIPTION_PRICE_LIST_CODE;
 
     // Create a trial subscription in Bunny
-    await bunny.subscriptionCreate(priceListCode, {
+    const result = await bunny.subscriptionCreate(priceListCode, {
       accountName: `${firstName} ${lastName}`,
       firstName: firstName,
       lastName: lastName,
@@ -67,6 +67,7 @@ router.post("/sign-up", async function (req, res, next) {
       evergreen: true,
       tenantCode: `sample-saas-account-${account.id}`,
     });
+    console.log("Subscription Created: ", result);
 
     await eventsService.createEvent(
       account.id,
