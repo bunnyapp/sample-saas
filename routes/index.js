@@ -26,6 +26,7 @@ router.get("/notes", ensureLoggedIn, async (req, res, next) => {
 
     res.render("notes", {
       bunnyPortalToken: bunnyPortalToken,
+      bunnySubdomain: process.env.BUNNY_SUBDOMAIN,
       notes: rows,
       total_notes: rows.length,
       max_notes: user.max_notes,

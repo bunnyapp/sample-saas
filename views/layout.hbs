@@ -60,7 +60,7 @@
     <script type="text/javascript" src="https://cdn.bunny.com/v1/bunny.js"></script>
     <script type="text/javascript">
       const token = "{{ bunnyPortalToken }}";
-      const bunny = new Bunny("demo", token);
+      const bunny = new Bunny("{{ bunnySubdomain }}", token);
 
       function onManageSubscriptionClick (e) {
         bunny.popup('subscriptions',(data) => {
