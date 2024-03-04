@@ -98,8 +98,6 @@ async function processProvisioningChange(payload) {
       account.id,
       maxNotes
     );
-
-    return res.json({ success: updateResponse });
   } else {
     // Create a new account
     var account = await accountsService.createAccount(
