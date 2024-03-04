@@ -66,7 +66,7 @@ async function processProvisioningChange(payload) {
 
   var accountId = payload.tenant.code.replace("sample-saas-account-", "");
   var account = await accountsService.findById(accountId);
-  console.log("ACCOUNT", account);
+  console.log("Account to update", account);
 
   const contact = payload.tenant.account.contacts[0];
   const subscription = payload.change.subscriptions[0];
@@ -79,6 +79,7 @@ async function processProvisioningChange(payload) {
   const maxNotes = getNotesAllowedFromSubcriptions(
     payload.change.subscriptions
   );
+  console.log(`Updating max notes to ${maxNotes}`);
 
   if (account) {
     await eventsService.createEvent(
@@ -94,10 +95,7 @@ async function processProvisioningChange(payload) {
     );
 
     // Update the account
-    const updateResponse = await accountsService.updateMaxNotes(
-      account.id,
-      maxNotes
-    );
+    await accountsService.updateMaxNotes(account.id, maxNotes);
   } else {
     // Create a new account
     var account = await accountsService.createAccount(
@@ -119,7 +117,7 @@ async function processProvisioningChange(payload) {
 
     try {
       // Then update the tenantCode on Bunny
-      const tenant = await bunny.tenantUpdate(
+      await bunny.tenantUpdate(
         payload.tenant.id,
         account.id,
         payload.tenant.name
@@ -156,9 +154,11 @@ router.post("/hook", validateWebhookSignature, async function (req, res, next) {
       const valid = await processCheckoutValidation(payload);
 
       if (valid) {
+        console.log("Checkout validation passed");
         return res.sendStatus(200);
       }
 
+      console.log("Checkout validation failed");
       return res
         .status(422)
         .json([
