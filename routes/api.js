@@ -31,11 +31,6 @@ function validateWebhookSignature(req, res, next) {
   next();
 }
 
-function getNotesAllowedFromSubcriptions(subscriptions) {
-  const notesAllowed = subscriptions[0].features.find((f) => f.code == "notes");
-  return notesAllowed?.quantity || 3;
-}
-
 function getNotesAllowedFromFeatures(features) {
   const notesAllowed = features.find((f) => f.code == "notes");
   return notesAllowed?.quantity || 3;
@@ -76,9 +71,7 @@ async function processProvisioningChange(payload) {
     "Provisioning request received from Bunny for tenant " + payload.tenant.code
   );
 
-  const maxNotes = getNotesAllowedFromSubcriptions(
-    payload.change.subscriptions
-  );
+  const maxNotes = getNotesAllowedFromFeatures(payload.change.features);
   console.log(`Updating max notes to ${maxNotes}`);
 
   if (account) {
