@@ -10,7 +10,7 @@ import Bunny, { Subscription, Transaction } from '@bunnyapp/api-client';
 // Load environment variables
 dotenv.config();
 
-// Initialize Bunny SDK
+// Initialize  Bunny SDK
 const bunny = new Bunny({
   baseUrl: process.env.BUNNY_BASE_URL || '',
   accessToken: process.env.BUNNY_ACCESS_TOKEN || ''
