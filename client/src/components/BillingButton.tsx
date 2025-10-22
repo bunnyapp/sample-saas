@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { BunnyProvider, Transactions } from "@bunnyapp/components";
 
 declare global {
@@ -10,34 +9,18 @@ declare global {
 
 interface BillingButtonProps {
   axiosInstance: any;
+  onShowSubscriptions?: () => void;
 }
 
-const BillingButton: React.FC<BillingButtonProps> = ({ axiosInstance }) => {
+const BillingButton: React.FC<BillingButtonProps> = ({ axiosInstance, onShowSubscriptions }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
   const [portalToken, setPortalToken] = useState<string | null>(null);
 
   const handleBillingClick = async () => {
-    try {
-      // Request portal session token from server
-      const response = await axiosInstance.get('/api/billing/portal-session');
-      const token = response.data.token;
-
-      // Initialize Bunny with subdomain and token
-      const bunny = new window.Bunny(process.env.REACT_APP_BUNNY_SUBDOMAIN || "subdomain", token);
-
-      // Open the portal
-      bunny.popup({
-        page: "subscriptions",
-        callback: (response: any) => {
-          if (response === "close") {
-            // Handle portal close if needed
-            console.log("Portal closed");
-          }
-        }
-      });
-    } catch (error) {
-      console.error('Error opening billing portal:', error);
+    if (onShowSubscriptions) {
+      onShowSubscriptions();
+      setIsDropdownOpen(false);
     }
   };
 
@@ -63,7 +46,7 @@ const BillingButton: React.FC<BillingButtonProps> = ({ axiosInstance }) => {
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
-            Billing
+            Manage Subscription
           </button>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -117,6 +100,7 @@ const BillingButton: React.FC<BillingButtonProps> = ({ axiosInstance }) => {
           </div>
         </div>
       )}
+
     </>
   );
 };

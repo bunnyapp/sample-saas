@@ -54,7 +54,7 @@ const EventsSidebar: React.FC<EventsSidebarProps> = ({ axiosInstance }) => {
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto h-screen fixed right-0 top-0 p-4">
+    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto h-screen p-4">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Activity Log</h2>
       {error && (
         <div className="mb-4 text-sm text-red-600">{error}</div>
