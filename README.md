@@ -1,51 +1,73 @@
-# Sample-SaaS
+# Todo Application with Authentication
 
-A simple multi tenant notes app for demonstrating integration with Bunny.
+A full-stack todo application built with Node.js, Express, React, SQLite3, and Tailwind CSS.
 
-The sample is built using Node + Express + Tailwind CSS.
+## Features
 
-## What does it do?
+- User authentication (register/login)
+- Create, read, update, and delete todos
+- Mark todos as complete/incomplete
+- Modern UI with Tailwind CSS
+- SQLite3 database for data persistence
 
-Sign in/sign up is email address. There are no passwords or magic links. This is just a demo app so we're not focussed on account security in this case.
+## Prerequisites
 
-- If you sign up for a new account at `/accounts/sign-up` it will
-
-  - create a new tenant/account in sample-saas
-  - create a new account & subscription in Bunny
-  - set the local `account.id` as the `tenantCode` for this account in Bunny
-
-- If you select "Manage Subscription" in the top menu it will redirect you to Bunny's subscription management portal where you can upgrade or modify subscriptions, and make payments etc.
-
-- When a webhook is recieved from Bunny at `/api/hook` it will
-  - validate the incoming webhook signature from the request header using a shared signing token
-  - check if the tenant in the webhook payload matches with any accounts store locally.
-    - if _no_ account is found it will create one and set the max notes allowance
-    - if an account is found it will update the max notes allowance for that account
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
 ## Setup
 
-Refer to https://docs.bunny.com/developer/integrate/the-sample-saas-app for instructions
+1. Clone the repository
+2. Install backend dependencies:
+   ```bash
+   npm install
+   ```
+3. Install frontend dependencies:
+   ```bash
+   cd client
+   npm install
+   ```
 
-## Develop
+## Running the Application
 
-Run this sample in development mode which will auto rebuild on changes.
+1. Start the backend server:
+   ```bash
+   npm run dev
+   ```
+2. In a new terminal, start the frontend development server:
+   ```bash
+   cd client
+   npm start
+   ```
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-Start the main express app.
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
 
 ```
-> npm install
-> npm run dev
+PORT=3051
+JWT_SECRET=your-super-secret-key-change-this-in-production
+
+# CORS Configuration
+CORS_ORIGIN=http://localhost:3001
+
+# Bunny SDK Configuration
+BUNNY_BASE_URL=https://rich.bunny.com
+BUNNY_ACCESS_TOKEN=xxx
+BUNNY_PRICE_LIST_CODE=notes_monthly
 ```
 
-If you want to make changes to html templates and css then also run the css rebuild using
+## API Endpoints
 
-```sh
-> npm run build-css
-```
+### Authentication
 
-Then access the sample at http://localhost:3030
+- POST `/api/register` - Register a new user
+- POST `/api/login` - Login user
 
-## Beware
+### Todos
 
-This is a simple app designed to demonstrate how Bunny can be used with a SaaS application. Feel free to copy how we have used the Bunny SDK but take note that we have made compromises in order to keep this simple so please don't copy the app itself, user management and session security etc.
-
+- GET `/api/todos` - Get all todos for authenticated user
+- POST `/api/todos` - Create a new todo
+- PUT `/api/todos/:id` - Update a todo
+- DELETE `/api/todos/:id` - Delete a todo
