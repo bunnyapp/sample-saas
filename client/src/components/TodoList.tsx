@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { createApiClient } from '../config/api';
 import { BunnyProvider, Subscriptions } from "@bunnyapp/components";
 import EventsSidebar from './EventsSidebar';
 import BillingButton from './BillingButton';
@@ -30,17 +30,15 @@ const TodoList: React.FC<TodoListProps> = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
-  const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3051',
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const axiosInstance = createApiClient(token || undefined);
 
-  useEffect(() => {
-    fetchAccountLimits();
-    fetchTodos();
-  }, []);
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    navigate('/login');
+  }, [setIsAuthenticated, navigate]);
 
-  const fetchAccountLimits = async () => {
+  const fetchAccountLimits = useCallback(async () => {
     try {
       const response = await axiosInstance.get('/api/account/limits');
       setAccountLimits(response.data);
@@ -50,9 +48,9 @@ const TodoList: React.FC<TodoListProps> = ({ setIsAuthenticated }) => {
       }
       console.error('Error fetching account limits');
     }
-  };
+  }, [axiosInstance, handleLogout]);
 
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     try {
       const response = await axiosInstance.get('/api/todos');
       if (response.data.length === 0) {
@@ -70,13 +68,12 @@ const TodoList: React.FC<TodoListProps> = ({ setIsAuthenticated }) => {
       }
       setError('Error fetching todos');
     }
-  };
+  }, [axiosInstance, handleLogout]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/login');
-  };
+  useEffect(() => {
+    fetchAccountLimits();
+    fetchTodos();
+  }, [fetchAccountLimits, fetchTodos]);
 
   const handleAddTodo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,10 +173,7 @@ const TodoList: React.FC<TodoListProps> = ({ setIsAuthenticated }) => {
         <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
           {showSubscriptions && portalToken ? (
             /* Subscriptions View */
-            <div className="bg-white border border-gray-200 p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Subscriptions</h2>
-              </div>
+            <div className="bg-white border border-gray-200 px-6">
               <BunnyProvider
                 token={portalToken}
                 apiHost={process.env.REACT_APP_BUNNY_API_HOST || "https://api.bunny.com"}

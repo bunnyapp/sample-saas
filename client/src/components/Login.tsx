@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 interface LoginProps {
   setIsAuthenticated: (value: boolean) => void;
@@ -15,7 +16,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3051/api/login', {
+      const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });

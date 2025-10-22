@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 interface RegisterProps {
   setIsAuthenticated: (value: boolean) => void;
@@ -40,7 +41,7 @@ const Register: React.FC<RegisterProps> = ({ setIsAuthenticated }) => {
     }
 
     try {
-      const response = await axios.post<RegisterResponse>('http://localhost:3051/api/register', {
+      const response = await axios.post<RegisterResponse>(`${API_URL}/api/register`, {
         email,
         password,
         firstName,
