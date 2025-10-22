@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import { BunnyPortal } from "@bunnyapp/components";
+import BunnyPortal from './BunnyPortal';
 
 interface PortalButtonProps {
   axiosInstance: any;
@@ -35,11 +35,11 @@ const PortalButton: React.FC<PortalButtonProps> = ({ axiosInstance }) => {
         <div className="fixed inset-0 z-50 overflow-auto bg-gray-500 bg-opacity-75">
           <div className="min-h-screen flex items-center justify-center p-4">
             <div className="relative bg-white rounded-lg w-full max-w-4xl">
-              {/* <BunnyPortal
+              <BunnyPortal
                 token={portalToken}
                 subdomain={process.env.REACT_APP_BUNNY_SUBDOMAIN || "subdomain"}
                 onClose={() => setShowPortal(false)}
-              /> */}
+              />
             </div>
           </div>
         </div>
