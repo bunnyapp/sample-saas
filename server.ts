@@ -87,10 +87,11 @@ interface Connection<T> {
 const app = express();
 const PORT = process.env.PORT || 3051;
 
-// Update CORS configuration with specific options
+// Update CORS configuration with environment variable support
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3001';
 app.use(
   cors({
-    origin: 'http://localhost:3001', // Allow requests from React dev server
+    origin: corsOrigin, // Allow requests from specified origin
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers

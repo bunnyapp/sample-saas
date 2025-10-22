@@ -49,6 +49,9 @@ Create a `.env` file in the root directory with the following variables:
 PORT=3051
 JWT_SECRET=your-super-secret-key-change-this-in-production
 
+# CORS Configuration
+CORS_ORIGIN=http://localhost:3001
+
 # Bunny SDK Configuration
 BUNNY_BASE_URL=https://rich.bunny.com
 BUNNY_ACCESS_TOKEN=xxx
