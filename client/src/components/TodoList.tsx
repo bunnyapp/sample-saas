@@ -35,7 +35,7 @@ const TodoList: React.FC<TodoListProps> = ({ setIsAuthenticated }) => {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    navigate('/login');
+    navigate('/');
   }, [setIsAuthenticated, navigate]);
 
   const fetchAccountLimits = useCallback(async () => {

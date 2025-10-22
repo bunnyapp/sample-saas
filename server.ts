@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import dotenv from 'dotenv';
+import { randomUUID } from 'crypto';
 import Bunny, { Subscription, Transaction } from '@bunnyapp/api-client';
 
 // Load environment variables
@@ -118,6 +119,7 @@ function initializeDatabase(): void {
       email TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       company_name TEXT NOT NULL,
+      tenant_code TEXT UNIQUE NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -219,10 +221,13 @@ const registerHandler: RequestHandler = async (req, res) => {
   }
 
   try {
+    // Generate unique tenant code
+    const tenantCode = `samplesaas-user-${randomUUID()}`;
+
     // Create user in our database (no password required)
     db.run(
-      'INSERT INTO users (email, name, company_name) VALUES (?, ?, ?)',
-      [email, name, companyName],
+      'INSERT INTO users (email, name, company_name, tenant_code) VALUES (?, ?, ?, ?)',
+      [email, name, companyName, tenantCode],
       async function (err) {
         if (err) {
           if (err.message.includes('UNIQUE constraint failed')) {
@@ -246,7 +251,7 @@ const registerHandler: RequestHandler = async (req, res) => {
             firstName,
             lastName,
             email,
-            tenantCode: `samplesaas-user-${userId.toString()}`, // Using our user ID as the tenant code
+            tenantCode: tenantCode, // Using the stored unique tenant code
           });
 
           if (!subscription || !subscription.id) {
