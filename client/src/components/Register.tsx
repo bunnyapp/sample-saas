@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../config/api';
 
@@ -9,9 +9,8 @@ interface RegisterProps {
 
 interface RegisterData {
   email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  companyName: string;
 }
 
 interface RegisterResponse {
@@ -25,27 +24,19 @@ interface RegisterResponse {
 
 const Register: React.FC<RegisterProps> = ({ setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     try {
       const response = await axios.post<RegisterResponse>(`${API_URL}/api/register`, {
         email,
-        password,
-        firstName,
-        lastName
+        name,
+        companyName
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -67,10 +58,7 @@ const Register: React.FC<RegisterProps> = ({ setIsAuthenticated }) => {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-              sign in to your account
-            </Link>
+            Get started with your company account
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -81,33 +69,33 @@ const Register: React.FC<RegisterProps> = ({ setIsAuthenticated }) => {
           )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="first-name" className="sr-only">
-                First Name
+              <label htmlFor="company-name" className="sr-only">
+                Company Name
               </label>
               <input
-                id="first-name"
-                name="firstName"
+                id="company-name"
+                name="companyName"
                 type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Company Name"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
               />
             </div>
             <div>
-              <label htmlFor="last-name" className="sr-only">
-                Last Name
+              <label htmlFor="name" className="sr-only">
+                Name
               </label>
               <input
-                id="last-name"
-                name="lastName"
+                id="name"
+                name="name"
                 type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div>
@@ -120,42 +108,10 @@ const Register: React.FC<RegisterProps> = ({ setIsAuthenticated }) => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
           </div>

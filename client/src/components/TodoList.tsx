@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createApiClient } from '../config/api';
 import { BunnyProvider, Subscriptions } from "@bunnyapp/components";
@@ -30,7 +30,7 @@ const TodoList: React.FC<TodoListProps> = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
-  const axiosInstance = createApiClient(token || undefined);
+  const axiosInstance = useMemo(() => createApiClient(token || undefined), [token]);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');

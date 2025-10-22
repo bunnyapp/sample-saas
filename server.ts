@@ -54,9 +54,8 @@ interface AuthenticatedRequest extends Request {
 interface RegisterRequest extends Request {
   body: {
     email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
+    name: string;
+    companyName: string;
   }
 }
 
@@ -116,7 +115,8 @@ function initializeDatabase(): void {
     db.run(`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
+      name TEXT NOT NULL,
+      company_name TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -202,9 +202,9 @@ const createEvent = (userId: number, type: string, status: 'success' | 'error', 
 
 // Auth Routes
 const registerHandler: RequestHandler = async (req, res) => {
-  const { email, password, firstName, lastName } = req.body;
+  const { email, name, companyName } = req.body;
 
-  if (!email || !password || !firstName || !lastName) {
+  if (!email || !name || !companyName) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
@@ -218,12 +218,10 @@ const registerHandler: RequestHandler = async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user in our database
+    // Create user in our database (no password required)
     db.run(
-      'INSERT INTO users (email, password) VALUES (?, ?)',
-      [email, hashedPassword],
+      'INSERT INTO users (email, name, company_name) VALUES (?, ?, ?)',
+      [email, name, companyName],
       async function (err) {
         if (err) {
           if (err.message.includes('UNIQUE constraint failed')) {
@@ -235,10 +233,15 @@ const registerHandler: RequestHandler = async (req, res) => {
         const userId = this.lastID;
 
         try {
+          // Split the name into first and last name
+          const nameParts = name.trim().split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+
           const subscription: Subscription = await bunny.subscriptionCreate(process.env.BUNNY_PRICE_LIST_CODE || '', {
             trial: true,
             evergreen: true,
-            accountName: `${firstName} ${lastName}`,
+            accountName: `${firstName} ${lastName}`.trim(),
             firstName,
             lastName,
             email,

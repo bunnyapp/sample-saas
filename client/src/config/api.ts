@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * API Configuration
  *
@@ -20,7 +22,6 @@ export const API_URL = getApiUrl();
 
 // Helper function to create axios instance with proper configuration
 export const createApiClient = (token?: string) => {
-  const axios = require('axios');
   return axios.create({
     baseURL: API_URL,
     headers: token ? { Authorization: `Bearer ${token}` } : {}
