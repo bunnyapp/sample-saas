@@ -245,7 +245,7 @@ const registerHandler: RequestHandler = async (req, res) => {
           const firstName = nameParts[0] || '';
           const lastName = nameParts.slice(1).join(' ') || '';
 
-          const subscription: Subscription = await bunny.subscriptionCreate(process.env.BUNNY_PRICE_LIST_CODE || '', {
+          const subscriptionData = {
             trial: true,
             evergreen: true,
             accountName: `${firstName} ${lastName}`.trim(),
@@ -253,6 +253,24 @@ const registerHandler: RequestHandler = async (req, res) => {
             lastName,
             email,
             tenantCode: tenantCode, // Using the stored unique tenant code
+          };
+
+          console.log('Creating Bunny subscription with data:', {
+            priceListCode: process.env.BUNNY_PRICE_LIST_CODE,
+            subscriptionData,
+            bunnyConfig: {
+              baseUrl: process.env.BUNNY_BASE_URL,
+              hasAccessToken: !!process.env.BUNNY_ACCESS_TOKEN
+            }
+          });
+
+          const subscription: Subscription = await bunny.subscriptionCreate(process.env.BUNNY_PRICE_LIST_CODE || '', subscriptionData);
+
+          console.log('Bunny subscription creation response:', {
+            subscription,
+            subscriptionId: subscription?.id,
+            subscriptionState: subscription?.state,
+            hasSubscription: !!subscription
           });
 
           if (!subscription || !subscription.id) {
@@ -289,12 +307,26 @@ const registerHandler: RequestHandler = async (req, res) => {
             }
           });
         } catch (error: any) {
+          console.error('Bunny subscription creation failed:', {
+            error: error.message,
+            errorStack: error.stack,
+            errorCode: error.code,
+            errorStatus: error.status,
+            errorResponse: error.response?.data,
+            userId,
+            tenantCode,
+            email,
+            bunnyConfig: {
+              baseUrl: process.env.BUNNY_BASE_URL,
+              hasAccessToken: !!process.env.BUNNY_ACCESS_TOKEN,
+              priceListCode: process.env.BUNNY_PRICE_LIST_CODE
+            }
+          });
+
           // If Bunny subscription creation fails, delete the user we just created
           await new Promise((resolve) => {
             db.run('DELETE FROM users WHERE id = ?', [userId], () => resolve(true));
           });
-
-          console.error('Error creating subscription:', error);
 
           await createEvent(userId, 'subscription_create', 'error',
             error.message || 'Unknown error occurred');
