@@ -247,7 +247,7 @@ const registerHandler: RequestHandler = async (req, res) => {
           const subscriptionData = {
             trial: true,
             evergreen: true,
-            accountName: `${firstName} ${lastName}`.trim(),
+            accountName: companyName,
             firstName,
             lastName,
             email,
