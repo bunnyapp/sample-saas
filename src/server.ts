@@ -21,7 +21,9 @@ const bunny = new Bunny({
 interface User {
   id: number;
   email: string;
-  password: string;
+  name: string;
+  company_name: string;
+  tenant_code: string;
   created_at: string;
 }
 
@@ -349,32 +351,6 @@ const registerHandler: RequestHandler = async (req, res) => {
 
 app.post('/api/register', registerHandler);
 
-app.post('/api/login', (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  db.get<User>('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
-    if (err) {
-      return res.status(500).json({ error: 'Server error' });
-    }
-    if (!user) {
-      return res.status(400).json({ error: 'User not found' });
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid password' });
-    }
-
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
-
-    res.json({ token });
-  });
-});
-
 // Account Limits Routes
 app.get('/api/account/limits', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   db.get<AccountLimits>(
@@ -528,7 +504,7 @@ app.get('/api/billing/portal-session', authenticateToken, async (req: Authentica
     }
 
     // Create portal session using Bunny client
-    const tenantCode = `samplesaas-user-${user.id.toString()}`;
+    const tenantCode = user.tenant_code;
     console.log('Tenant code:', tenantCode);
     const portalSession = await bunny.portalSessionCreate(tenantCode);
 
