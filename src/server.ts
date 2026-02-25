@@ -101,7 +101,10 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
   })
 );
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.path === '/api/hook') return next();
+  express.json()(req, res, next);
+});
 
 // Database setup
 const db = new sqlite3.Database('./todo.db', (err) => {
@@ -575,6 +578,67 @@ app.get('/api/transactions', authenticateToken, async (req: AuthenticatedRequest
     console.error('Error creating portal session:', error);
     res.status(500).json({
       error: 'Error creating portal session',
+      details: error.message || 'Unknown error occurred'
+    });
+  }
+});
+
+// Webhook Routes
+app.post('/api/hook', express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+  try {
+    const rawBody = req.body as Buffer;
+    const signingToken = process.env.BUNNY_WEBHOOK_SECRET;
+
+    if (signingToken) {
+      const signature = req.headers['x-bunny-signature'] as string;
+      if (!signature || !bunny.webhooks.validate(signature, rawBody, signingToken)) {
+        return res.status(401).json({ error: 'Invalid webhook signature' });
+      }
+    }
+
+    const { type, payload } = JSON.parse(rawBody.toString('utf8'));
+
+    // Validate payload structure
+    if (!payload || !payload.tenant || !payload.tenant.code) {
+      return res.status(400).json({ error: 'Invalid webhook payload: missing tenant code' });
+    }
+
+    const tenantCode = payload.tenant.code;
+
+    // Look up user by tenant code
+    const user = await new Promise<User | undefined>((resolve, reject) => {
+      db.get<User>(
+        'SELECT * FROM users WHERE tenant_code = ?',
+        [tenantCode],
+        (err, user) => {
+          if (err) reject(err);
+          else resolve(user);
+        }
+      );
+    });
+
+    if (!user) {
+      console.warn(`Webhook received for unknown tenant code: ${tenantCode}`);
+      return res.status(404).json({ error: 'User not found for tenant code' });
+    }
+
+    // Create event to log webhook receipt
+    const webhookType = type || 'webhook';
+    const details = `Received ${webhookType} webhook for tenant ${tenantCode}`;
+
+    await createEvent(user.id, 'webhook_received', 'success', details);
+
+    console.log(`Webhook processed: ${webhookType} for user ${user.id} (${user.email})`);
+
+    res.json({
+      success: true,
+      message: 'Webhook processed successfully',
+      userId: user.id
+    });
+  } catch (error: any) {
+    console.error('Error processing webhook:', error);
+    res.status(500).json({
+      error: 'Error processing webhook',
       details: error.message || 'Unknown error occurred'
     });
   }
